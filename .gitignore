@@ -42,3 +42,6 @@ ipch
 *sdf
 *.user
 *.filters
+
+/Pong/packages/*
+

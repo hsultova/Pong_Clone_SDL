@@ -5,6 +5,8 @@
 
 #include <stdio.h>
 
+#include "TextureManager.h"
+
 GameManager* GameManager::s_instance = nullptr;
 
 GameManager* GameManager::Get()
@@ -76,7 +78,8 @@ bool GameManager::Initialize()
 	//Initialize renderer color
 	SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
 
-	if (IMG_Init(IMG_INIT_JPG) < 0)
+	int flags = IMG_INIT_JPG | IMG_INIT_PNG;
+	if (!(IMG_Init(flags)))
 	{
 		printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
 		return false;
@@ -146,6 +149,7 @@ void GameManager::PlayGame()
 		SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
 		SDL_RenderClear(m_renderer);
 
+		TextureManager::Get()->RenderTextures();
 
 		SDL_RenderPresent(m_renderer);
 	}

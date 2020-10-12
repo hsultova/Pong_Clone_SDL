@@ -1,11 +1,16 @@
 #include <stdio.h>
 
 #include "GameManager.h"
+#include "TextureManager.h"
 
 int main(int argc, char* args[])
 {
 	GameManager* gameManager = &GameManager();
 	GameManager::RegisterInstance(gameManager);
+
+	TextureManager* textureManager = &TextureManager();
+	TextureManager::RegisterInstance(textureManager);
+	textureManager->Initialize();
 
 	if (!GameManager::Get()->Initialize())
 	{
@@ -13,10 +18,14 @@ int main(int argc, char* args[])
 		return -1;
 	}
 
-	GameManager::Get()->PlayGame();
+	textureManager->LoadTextures();
+	gameManager->PlayGame();
 
-	GameManager::Get()->Destroy();
+	gameManager->Destroy();
 	GameManager::UnregisterInstance(gameManager);
+
+	textureManager->Destroy();
+	TextureManager::UnregisterInstance(textureManager);
 
 	return 0;
 }

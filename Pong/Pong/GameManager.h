@@ -3,6 +3,13 @@
 #include <SDL.h>
 
 #include <assert.h> 
+#include "Texture.h"
+
+struct Position
+{
+	float x;
+	float y;
+};
 
 class GameManager
 {
