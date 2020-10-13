@@ -11,6 +11,12 @@ struct Position
 	float y;
 };
 
+enum class Direction
+{
+	up,
+	down
+};
+
 class GameManager
 {
 public:

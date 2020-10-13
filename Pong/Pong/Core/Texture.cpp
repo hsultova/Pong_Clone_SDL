@@ -110,8 +110,8 @@ bool Texture::SetFont(TTF_Font* _font)
 {
 	if (_font == nullptr)
 	{
-			printf("Failed to load the font! SDL_ttf Error: %s\n", TTF_GetError());
-			return false;
+		printf("Failed to load the font! SDL_ttf Error: %s\n", TTF_GetError());
+		return false;
 	}
 	m_font = _font;
 

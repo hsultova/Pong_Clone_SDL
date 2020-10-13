@@ -21,11 +21,11 @@ int main(int argc, char* args[])
 	textureManager->LoadTextures();
 	gameManager->PlayGame();
 
-	gameManager->Destroy();
-	GameManager::UnregisterInstance(gameManager);
-
 	textureManager->Destroy();
 	TextureManager::UnregisterInstance(textureManager);
+
+	gameManager->Destroy();
+	GameManager::UnregisterInstance(gameManager);
 
 	return 0;
 }

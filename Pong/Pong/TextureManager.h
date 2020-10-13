@@ -13,15 +13,19 @@ public:
 	void Destroy();
 
 	void LoadTextures();
-	void RenderTextures();
+	void RenderTextures(int _windowWidth, int _windowHeight);
+
+	Texture& GetBallTexture() const;
+	Texture* GetPlayerPaddleTexture() const;
+	Texture* GetComputerPaddleTexture() const;
 
 private:
 	static TextureManager* s_instance;
 
 	Texture* m_ball;
-	Texture* m_player1Paddle;
-	Texture* m_player2Paddle;
-	Texture* m_player1Score;
-	Texture* m_player2Score;
+	Texture* m_computerPaddle;
+	Texture* m_playerPaddle;
+	Texture* m_computerScore;
+	Texture* m_playerScore;
 };
 

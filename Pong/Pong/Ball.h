@@ -5,7 +5,7 @@
 class Ball
 {
 public:
-	Ball();
+	Ball(Texture& _texture);
 	~Ball();
 
 	void Update();
@@ -17,5 +17,7 @@ private:
 private:
 	Position m_position;
 	Position m_velocity;
+
+	Texture& m_texture;
 };
 

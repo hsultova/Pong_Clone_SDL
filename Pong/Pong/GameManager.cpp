@@ -6,6 +6,8 @@
 #include <stdio.h>
 
 #include "TextureManager.h"
+#include "Ball.h"
+#include "Paddle.h"
 
 GameManager* GameManager::s_instance = nullptr;
 
@@ -52,7 +54,7 @@ bool GameManager::Initialize()
 	}
 
 	//Create window
-	m_window = SDL_CreateWindow("Tic Tac Toe",
+	m_window = SDL_CreateWindow("Pong",
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
 		m_windowWidth,
@@ -125,6 +127,11 @@ void GameManager::PlayGame()
 	//Event handler
 	SDL_Event e;
 
+	Ball ball = Ball(TextureManager::Get()->GetBallTexture());
+
+	Paddle player = Paddle(Paddle(TextureManager::Get()->GetPlayerPaddleTexture()));
+	Paddle computer = Paddle(Paddle(TextureManager::Get()->GetComputerPaddleTexture()));
+
 	while (!quit)
 	{
 		//Input events
@@ -139,17 +146,46 @@ void GameManager::PlayGame()
 
 			if (e.type == SDL_WINDOWEVENT)
 			{
-				SDL_GetWindowSize(m_window, &m_windowWidth, &m_windowHeight);
+				int windowWidth;
+				int windowHeight;
+				SDL_GetWindowSize(m_window, &windowWidth, &windowHeight);
+				player.ResetPosition(m_windowWidth - windowWidth, m_windowHeight - windowHeight);
+				m_windowWidth = windowWidth;
+				m_windowHeight = windowHeight;
+			}
+
+			if (e.type == SDL_KEYDOWN && e.key.repeat == 0)
+			{
+				switch (e.key.keysym.sym)
+				{
+				case SDLK_UP: player.UpdateVelocity(Direction::up); break;
+				case SDLK_DOWN: player.UpdateVelocity(Direction::down); break;
+				}
+			}
+			else if (e.type == SDL_KEYUP && e.key.repeat == 0)
+			{
+				//Adjust the velocity
+				switch (e.key.keysym.sym)
+				{
+				case SDLK_UP: player.UpdateVelocity(Direction::down); break;
+				case SDLK_DOWN: player.UpdateVelocity(Direction::up); break;
+				}
 			}
 		}
 
 		//Game Logic
+		player.Update();
 
 		//Rendering
 		SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
 		SDL_RenderClear(m_renderer);
 
-		TextureManager::Get()->RenderTextures();
+		SDL_SetRenderDrawColor(m_renderer, 70, 70, 70, 255);
+		SDL_RenderDrawLine(m_renderer, m_windowWidth / 2, 0, m_windowWidth / 2, m_windowHeight);
+
+		//TextureManager::Get()->RenderTextures(m_windowWidth, m_windowHeight);
+		//ball.Render();
+		player.Render();
 
 		SDL_RenderPresent(m_renderer);
 	}
