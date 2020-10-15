@@ -1,11 +1,12 @@
 #pragma once
 
 #include "GameManager.h"
+#include "Collider.h"
 
-class Paddle
+class Paddle : public Collider
 {
 public:
-	Paddle(Texture* _texture);
+	Paddle(Position _position, Texture& _texture);
 	~Paddle();
 
 	int GetSpeed() const;
@@ -28,7 +29,7 @@ private:
 	Position m_position;
 	Position m_velocity;
 
-	Texture* m_texture;
+	Texture& m_texture;
 	int m_speed;
 };
 

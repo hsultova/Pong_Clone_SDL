@@ -68,12 +68,12 @@ Texture& TextureManager::GetBallTexture() const
 	return *m_ball;
 }
 
-Texture* TextureManager::GetPlayerPaddleTexture() const
+Texture& TextureManager::GetPlayerPaddleTexture() const
 {
-	return m_playerPaddle;
+	return *m_playerPaddle;
 }
 
-Texture* TextureManager::GetComputerPaddleTexture() const
+Texture& TextureManager::GetComputerPaddleTexture() const
 {
-	return m_computerPaddle;
+	return *m_computerPaddle;
 }

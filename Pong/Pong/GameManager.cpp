@@ -123,14 +123,28 @@ const int GameManager::GetWindowHeight() const
 void GameManager::PlayGame()
 {
 	bool quit = false;
-
-	//Event handler
 	SDL_Event e;
 
-	Ball ball = Ball(TextureManager::Get()->GetBallTexture());
+	Ball ball = Ball(
+		Position{ GameManager::Get()->GetWindowWidth() / 2.0f, GameManager::Get()->GetWindowHeight() / 2.0f },
+		TextureManager::Get()->GetBallTexture());
+	ball.UpdateVelocity(Direction::left);
 
-	Paddle player = Paddle(Paddle(TextureManager::Get()->GetPlayerPaddleTexture()));
-	Paddle computer = Paddle(Paddle(TextureManager::Get()->GetComputerPaddleTexture()));
+	Paddle player = Paddle(
+		Position{ GameManager::Get()->GetWindowWidth() - 30.0f,GameManager::Get()->GetWindowHeight() / 2.0f - TextureManager::Get()->GetPlayerPaddleTexture().GetHeight() / 2 },
+		TextureManager::Get()->GetPlayerPaddleTexture());
+
+	Paddle computer = Paddle(
+		Position{ GameManager::Get()->GetWindowWidth() / 100.0f, GameManager::Get()->GetWindowHeight() / 2.0f - TextureManager::Get()->GetComputerPaddleTexture().GetHeight() / 2 },
+		TextureManager::Get()->GetComputerPaddleTexture());
+
+	Collider wallUp = Collider(ColliderBox{ 0, 0, (float)GameManager::Get()->GetWindowWidth(), 5 }, Type::staticCollider);
+	Collider wallDown = Collider(ColliderBox{ 0, (float)GameManager::Get()->GetWindowHeight() - 10, (float)GameManager::Get()->GetWindowWidth(), 5 }, Type::staticCollider);
+
+	m_colliderList.push_back(&wallUp);
+	m_colliderList.push_back(&wallDown);
+	m_colliderList.push_back(&player);
+	m_colliderList.push_back(&computer);
 
 	while (!quit)
 	{
@@ -149,7 +163,9 @@ void GameManager::PlayGame()
 				int windowWidth;
 				int windowHeight;
 				SDL_GetWindowSize(m_window, &windowWidth, &windowHeight);
+
 				player.ResetPosition(m_windowWidth - windowWidth, m_windowHeight - windowHeight);
+
 				m_windowWidth = windowWidth;
 				m_windowHeight = windowHeight;
 			}
@@ -164,7 +180,6 @@ void GameManager::PlayGame()
 			}
 			else if (e.type == SDL_KEYUP && e.key.repeat == 0)
 			{
-				//Adjust the velocity
 				switch (e.key.keysym.sym)
 				{
 				case SDLK_UP: player.UpdateVelocity(Direction::down); break;
@@ -174,7 +189,18 @@ void GameManager::PlayGame()
 		}
 
 		//Game Logic
+
+		ball.Update();
 		player.Update();
+		computer.Update();
+
+		for (auto& collider : m_colliderList)
+		{
+			if (ball.Collide(*collider))
+			{
+				ball.SetVelocity(Position{ -ball.GetVelocity().x, -ball.GetVelocity().y });
+			}
+		}
 
 		//Rendering
 		SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
@@ -184,8 +210,9 @@ void GameManager::PlayGame()
 		SDL_RenderDrawLine(m_renderer, m_windowWidth / 2, 0, m_windowWidth / 2, m_windowHeight);
 
 		//TextureManager::Get()->RenderTextures(m_windowWidth, m_windowHeight);
-		//ball.Render();
+		ball.Render();
 		player.Render();
+		computer.Render();
 
 		SDL_RenderPresent(m_renderer);
 	}

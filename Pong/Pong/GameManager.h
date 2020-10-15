@@ -3,7 +3,10 @@
 #include <SDL.h>
 
 #include <assert.h> 
+#include <vector>
+
 #include "Texture.h"
+#include "Collider.h"
 
 struct Position
 {
@@ -14,7 +17,9 @@ struct Position
 enum class Direction
 {
 	up,
-	down
+	down,
+	left,
+	right
 };
 
 class GameManager
@@ -44,5 +49,6 @@ private:
 
 	SDL_Window* m_window = nullptr;
 	SDL_Renderer* m_renderer = nullptr;
+	std::vector<Collider*> m_colliderList;
 };
 

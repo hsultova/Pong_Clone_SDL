@@ -16,15 +16,15 @@ bool Collider::Collide(const Collider& _collider)
 		return false;
 	}
 
-	int leftA = m_box.x;
-	int rightA = m_box.x + m_box.w;
-	int topA = m_box.y;
-	int bottomA = m_box.y + m_box.h;
+	float leftA = m_box.x;
+	float rightA = m_box.x + m_box.w;
+	float topA = m_box.y;
+	float bottomA = m_box.y + m_box.h;
 
-	int leftB = _collider.m_box.x;
-	int rightB = _collider.m_box.x + _collider.m_box.w;
-	int topB = _collider.m_box.y;
-	int bottomB = _collider.m_box.y + _collider.m_box.h;
+	float leftB = _collider.m_box.x;
+	float rightB = _collider.m_box.x + _collider.m_box.w;
+	float topB = _collider.m_box.y;
+	float bottomB = _collider.m_box.y + _collider.m_box.h;
 
 	if (leftA >= rightB)
 	{

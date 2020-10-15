@@ -16,8 +16,8 @@ public:
 	void RenderTextures(int _windowWidth, int _windowHeight);
 
 	Texture& GetBallTexture() const;
-	Texture* GetPlayerPaddleTexture() const;
-	Texture* GetComputerPaddleTexture() const;
+	Texture& GetPlayerPaddleTexture() const;
+	Texture& GetComputerPaddleTexture() const;
 
 private:
 	static TextureManager* s_instance;
