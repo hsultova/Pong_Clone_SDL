@@ -13,11 +13,9 @@ public:
 	Position GetPosition();
 	Position GetVelocity();
 
-	//void SetPosition(Position _positon);
-	//void SetVelocity(Position _positon);
-
 	void UpdateVelocity(Direction _direction);
-	void ResetPosition(int x, int y);
+	void UpdateToWindow(int x, int y);
+	void ResetPosition();
 
 	void Update();
 	void Render();
@@ -27,6 +25,7 @@ private:
 
 private:
 	Position m_position;
+	Position m_initialPosition;
 	Position m_velocity;
 
 	Texture& m_texture;

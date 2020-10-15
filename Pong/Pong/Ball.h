@@ -11,12 +11,13 @@ public:
 
 	Position GetPosition() const;
 	Position GetVelocity() const;
+	int GetSpeed() const;
 
 	void Update();
 	void Render();
 
-	void UpdateVelocity(Direction _direction);
 	void SetVelocity(const Position& _position);
+	void ResetPosition();
 
 private:
 	void Move();
@@ -24,7 +25,7 @@ private:
 private:
 	Position m_position;
 	Position m_velocity;
-	int m_speed = 10;
+	int m_speed = 7;
 
 	Texture& m_texture;
 };

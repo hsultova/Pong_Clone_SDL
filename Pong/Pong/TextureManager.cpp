@@ -53,27 +53,27 @@ void TextureManager::LoadTextures()
 	m_playerScore->LoadFromRenderedText("0");
 }
 
-void TextureManager::RenderTextures(int _windowWidth, int _windowHeight)
-{
-	//m_ball->Render(_windowWidth / 2, _windowHeight / 2);
-	m_computerPaddle->Render(_windowWidth / 100, _windowHeight / 2 - m_computerPaddle->GetHeight() / 2);
-	//m_player2Paddle->Render(_windowWidth - 30, _windowHeight / 2 - m_player2Paddle->GetHeight() / 2);
-
-	m_computerScore->Render(_windowWidth / 4, 10);
-	m_playerScore->Render(_windowWidth - _windowWidth / 4, 10);
-}
-
-Texture& TextureManager::GetBallTexture() const
+Texture& TextureManager::GetBall() const
 {
 	return *m_ball;
 }
 
-Texture& TextureManager::GetPlayerPaddleTexture() const
+Texture& TextureManager::GetPlayerPaddle() const
 {
 	return *m_playerPaddle;
 }
 
-Texture& TextureManager::GetComputerPaddleTexture() const
+Texture& TextureManager::GetComputerPaddle() const
 {
 	return *m_computerPaddle;
+}
+
+Texture& TextureManager::GetComputerScore() const
+{
+	return *m_computerScore;
+}
+
+Texture& TextureManager::GetPlayerScore() const
+{
+	return *m_playerScore;
 }

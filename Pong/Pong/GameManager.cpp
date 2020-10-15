@@ -4,6 +4,8 @@
 #include <SDL_ttf.h>
 
 #include <stdio.h>
+#include <math.h>
+#include <string>
 
 #include "TextureManager.h"
 #include "Ball.h"
@@ -99,6 +101,18 @@ bool GameManager::Initialize()
 
 void GameManager::Destroy()
 {
+	m_ball = nullptr;
+	m_player = nullptr;
+	m_computer = nullptr;
+	m_wallUp = nullptr;
+	m_wallDown = nullptr;
+
+	delete m_ball;
+	delete m_player;
+	delete m_computer;
+	delete m_wallUp;
+	delete m_wallDown;
+
 	SDL_DestroyWindow(m_window);
 	m_window = nullptr;
 
@@ -125,26 +139,20 @@ void GameManager::PlayGame()
 	bool quit = false;
 	SDL_Event e;
 
-	Ball ball = Ball(
+	m_ball = &Ball(
 		Position{ GameManager::Get()->GetWindowWidth() / 2.0f, GameManager::Get()->GetWindowHeight() / 2.0f },
-		TextureManager::Get()->GetBallTexture());
-	ball.UpdateVelocity(Direction::left);
+		TextureManager::Get()->GetBall());
 
-	Paddle player = Paddle(
-		Position{ GameManager::Get()->GetWindowWidth() - 30.0f,GameManager::Get()->GetWindowHeight() / 2.0f - TextureManager::Get()->GetPlayerPaddleTexture().GetHeight() / 2 },
-		TextureManager::Get()->GetPlayerPaddleTexture());
+	m_player = &Paddle(
+		Position{ GameManager::Get()->GetWindowWidth() - 30.0f,GameManager::Get()->GetWindowHeight() / 2.0f - TextureManager::Get()->GetPlayerPaddle().GetHeight() / 2 },
+		TextureManager::Get()->GetPlayerPaddle());
 
-	Paddle computer = Paddle(
-		Position{ GameManager::Get()->GetWindowWidth() / 100.0f, GameManager::Get()->GetWindowHeight() / 2.0f - TextureManager::Get()->GetComputerPaddleTexture().GetHeight() / 2 },
-		TextureManager::Get()->GetComputerPaddleTexture());
+	m_computer = &Paddle(
+		Position{ GameManager::Get()->GetWindowWidth() / 100.0f, GameManager::Get()->GetWindowHeight() / 2.0f - TextureManager::Get()->GetComputerPaddle().GetHeight() / 2 },
+		TextureManager::Get()->GetComputerPaddle());
 
-	Collider wallUp = Collider(ColliderBox{ 0, 0, (float)GameManager::Get()->GetWindowWidth(), 5 }, Type::staticCollider);
-	Collider wallDown = Collider(ColliderBox{ 0, (float)GameManager::Get()->GetWindowHeight() - 10, (float)GameManager::Get()->GetWindowWidth(), 5 }, Type::staticCollider);
-
-	m_colliderList.push_back(&wallUp);
-	m_colliderList.push_back(&wallDown);
-	m_colliderList.push_back(&player);
-	m_colliderList.push_back(&computer);
+	m_wallUp = &Collider(ColliderBox{ 0, 0, (float)GameManager::Get()->GetWindowWidth(), 5 }, Type::staticCollider);
+	m_wallDown = &Collider(ColliderBox{ 0, (float)GameManager::Get()->GetWindowHeight() - 10, (float)GameManager::Get()->GetWindowWidth(), 5 }, Type::staticCollider);
 
 	while (!quit)
 	{
@@ -164,7 +172,7 @@ void GameManager::PlayGame()
 				int windowHeight;
 				SDL_GetWindowSize(m_window, &windowWidth, &windowHeight);
 
-				player.ResetPosition(m_windowWidth - windowWidth, m_windowHeight - windowHeight);
+				m_player->UpdateToWindow(m_windowWidth - windowWidth, m_windowHeight - windowHeight);
 
 				m_windowWidth = windowWidth;
 				m_windowHeight = windowHeight;
@@ -174,33 +182,33 @@ void GameManager::PlayGame()
 			{
 				switch (e.key.keysym.sym)
 				{
-				case SDLK_UP: player.UpdateVelocity(Direction::up); break;
-				case SDLK_DOWN: player.UpdateVelocity(Direction::down); break;
+				case SDLK_UP: m_player->UpdateVelocity(Direction::up); break;
+				case SDLK_DOWN: m_player->UpdateVelocity(Direction::down); break;
+
+				case SDLK_w: m_computer->UpdateVelocity(Direction::up); break;
+				case SDLK_s: m_computer->UpdateVelocity(Direction::down); break;
 				}
 			}
 			else if (e.type == SDL_KEYUP && e.key.repeat == 0)
 			{
 				switch (e.key.keysym.sym)
 				{
-				case SDLK_UP: player.UpdateVelocity(Direction::down); break;
-				case SDLK_DOWN: player.UpdateVelocity(Direction::up); break;
+				case SDLK_UP: m_player->UpdateVelocity(Direction::down); break;
+				case SDLK_DOWN: m_player->UpdateVelocity(Direction::up); break;
+
+				case SDLK_w: m_computer->UpdateVelocity(Direction::down); break;
+				case SDLK_s: m_computer->UpdateVelocity(Direction::up); break;
 				}
 			}
 		}
 
 		//Game Logic
 
-		ball.Update();
-		player.Update();
-		computer.Update();
+		m_ball->Update();
+		m_player->Update();
+		m_computer->Update();
 
-		for (auto& collider : m_colliderList)
-		{
-			if (ball.Collide(*collider))
-			{
-				ball.SetVelocity(Position{ -ball.GetVelocity().x, -ball.GetVelocity().y });
-			}
-		}
+		CheckCollisions();
 
 		//Rendering
 		SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
@@ -210,10 +218,72 @@ void GameManager::PlayGame()
 		SDL_RenderDrawLine(m_renderer, m_windowWidth / 2, 0, m_windowWidth / 2, m_windowHeight);
 
 		//TextureManager::Get()->RenderTextures(m_windowWidth, m_windowHeight);
-		ball.Render();
-		player.Render();
-		computer.Render();
+		m_ball->Render();
+		m_player->Render();
+		m_computer->Render();
+
+		TextureManager::Get()->GetComputerScore().Render(m_windowWidth / 4, 10);
+		TextureManager::Get()->GetPlayerScore().Render(m_windowWidth - m_windowWidth / 4, 10);
 
 		SDL_RenderPresent(m_renderer);
+	}
+}
+
+void GameManager::RestartGame()
+{
+	m_ball->ResetPosition();
+	m_player->ResetPosition();
+	m_computer->ResetPosition();
+}
+
+void GameManager::CheckCollisions()
+{
+	if (m_ball->Collide(*m_player))
+	{
+		float y = m_ball->GetSpeed();
+		float t = ((m_ball->GetPosition().y - m_player->GetPosition().y) / TextureManager::Get()->GetPlayerPaddle().GetHeight()) + 0.5f;
+		if (t > 0 && t < 1)
+		{
+			y = -std::abs(m_ball->GetVelocity().y) - y/2;
+		}
+
+		m_ball->SetVelocity(Position{ -std::abs(m_ball->GetVelocity().x), y });
+	}
+
+	if (m_ball->Collide(*m_computer))
+	{
+		float y = m_ball->GetSpeed();
+		float t = ((m_ball->GetPosition().y - m_computer->GetPosition().y) / TextureManager::Get()->GetComputerPaddle().GetHeight()) + 0.5f;
+		if (t > 0 && t < 1)
+		{
+			y = std::abs(m_ball->GetVelocity().y) - y/2;
+		}
+		m_ball->SetVelocity(Position{ std::abs(m_ball->GetVelocity().x), y });
+	}
+
+	if (m_ball->Collide(*m_wallUp))
+	{
+		m_ball->SetVelocity(Position{ m_ball->GetVelocity().x, -m_ball->GetVelocity().y });
+	}
+
+	if (m_ball->Collide(*m_wallDown))
+	{
+		m_ball->SetVelocity(Position{ m_ball->GetVelocity().x, -m_ball->GetVelocity().y });
+	}
+
+	if (m_ball->GetPosition().x < 0)
+	{
+		//score for the player
+		m_playerScore++;
+		TextureManager::Get()->GetPlayerScore().LoadFromRenderedText(std::to_string(m_playerScore));
+		RestartGame();
+	}
+
+	if (m_ball->GetPosition().x > GameManager::Get()->GetWindowWidth() - TextureManager::Get()->GetPlayerPaddle().GetWidth())
+	{
+		//score for the computer
+		m_computerScore++;
+		TextureManager::Get()->GetComputerScore().LoadFromRenderedText(std::to_string(m_computerScore));
+		RestartGame();
 	}
 }

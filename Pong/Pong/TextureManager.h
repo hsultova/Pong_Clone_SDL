@@ -15,9 +15,11 @@ public:
 	void LoadTextures();
 	void RenderTextures(int _windowWidth, int _windowHeight);
 
-	Texture& GetBallTexture() const;
-	Texture& GetPlayerPaddleTexture() const;
-	Texture& GetComputerPaddleTexture() const;
+	Texture& GetBall() const;
+	Texture& GetPlayerPaddle() const;
+	Texture& GetComputerPaddle() const;
+	Texture& GetComputerScore() const;
+	Texture& GetPlayerScore() const;
 
 private:
 	static TextureManager* s_instance;

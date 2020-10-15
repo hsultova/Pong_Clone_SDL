@@ -4,6 +4,7 @@ Paddle::Paddle(Position _position, Texture& _texture)
 	: Collider(ColliderBox{ _position.x, _position.y, (float)_texture.GetWidth(), (float)_texture.GetHeight() }, Type::dynamicCollider),
 	m_position(_position), m_texture(_texture)
 {
+	m_initialPosition = _position;
 	m_velocity = Position{ 0, 0 };
 	m_speed = 10;
 }
@@ -40,10 +41,15 @@ void Paddle::UpdateVelocity(Direction _direction)
 	}
 }
 
-void Paddle::ResetPosition(int x, int y)
+void Paddle::UpdateToWindow(int x, int y)
 {
 	m_position = Position{ m_position.x - x, m_position.y - y / 2 };
 	UpdateCollisionBox(m_position.x - x, m_position.y - y / 2);
+}
+
+void Paddle::ResetPosition()
+{
+	m_position = m_initialPosition;
 }
 
 void Paddle::Update()
