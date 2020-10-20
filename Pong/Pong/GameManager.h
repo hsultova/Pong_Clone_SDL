@@ -42,10 +42,12 @@ public:
 	const int GetWindowHeight() const;
 
 	void PlayGame();
+	void RestartLevel();
 	void RestartGame();
 
 private:
 	void CheckCollisions();
+	bool CheckEndGame();
 
 private:
 	static GameManager* s_instance;

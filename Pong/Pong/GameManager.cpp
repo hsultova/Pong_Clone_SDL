@@ -229,11 +229,18 @@ void GameManager::PlayGame()
 	}
 }
 
-void GameManager::RestartGame()
+void GameManager::RestartLevel()
 {
 	m_ball->ResetPosition();
 	m_player->ResetPosition();
 	m_computer->ResetPosition();
+}
+
+void GameManager::RestartGame()
+{
+	RestartLevel();
+	m_computerScore = 0;
+	m_playerScore = 0;
 }
 
 void GameManager::CheckCollisions()
@@ -275,15 +282,37 @@ void GameManager::CheckCollisions()
 	{
 		//score for the player
 		m_playerScore++;
+		if (CheckEndGame())
+		{
+			RestartGame();
+		}
+		else 
+		{
+			RestartLevel();
+		}
+
 		TextureManager::Get()->GetPlayerScore().LoadFromRenderedText(std::to_string(m_playerScore));
-		RestartGame();
+
 	}
 
 	if (m_ball->GetPosition().x > GameManager::Get()->GetWindowWidth() - TextureManager::Get()->GetPlayerPaddle().GetWidth())
 	{
 		//score for the computer
 		m_computerScore++;
+		if (CheckEndGame())
+		{
+			RestartGame();
+		}
+		else
+		{
+			RestartLevel();
+		}
+
 		TextureManager::Get()->GetComputerScore().LoadFromRenderedText(std::to_string(m_computerScore));
-		RestartGame();
 	}
+}
+
+bool GameManager::CheckEndGame()
+{
+	return (m_computerScore > 11) || (m_playerScore > 11);
 }
