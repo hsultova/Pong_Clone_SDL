@@ -140,107 +140,15 @@ const int GameManager::GetWindowHeight() const
 
 void GameManager::PlayGame()
 {
-	bool quit = false;
-	SDL_Event e;
+	InitializeGameData();
 
-	m_ball = &Ball(
-		Position{ GameManager::Get()->GetWindowWidth() / 2.0f, GameManager::Get()->GetWindowHeight() / 2.0f },
-		TextureManager::Get()->GetBall());
-
-	m_player = &Paddle(
-		Position{ GameManager::Get()->GetWindowWidth() - 30.0f,GameManager::Get()->GetWindowHeight() / 2.0f - TextureManager::Get()->GetPlayerPaddle().GetHeight() / 2 },
-		TextureManager::Get()->GetPlayerPaddle());
-
-	m_computer = &Paddle(
-		Position{ GameManager::Get()->GetWindowWidth() / 100.0f, GameManager::Get()->GetWindowHeight() / 2.0f - TextureManager::Get()->GetComputerPaddle().GetHeight() / 2 },
-		TextureManager::Get()->GetComputerPaddle());
-
-	m_wallUp = &Collider(ColliderBox{ 0, 0, (float)GameManager::Get()->GetWindowWidth(), 5 }, Type::staticCollider);
-	m_wallDown = &Collider(ColliderBox{ 0, (float)GameManager::Get()->GetWindowHeight() - 10, (float)GameManager::Get()->GetWindowWidth(), 5 }, Type::staticCollider);
-
-	Texture& singleplayerTexture = TextureManager::Get()->GetSingleplayerMode();
-	Texture& multiplayerTexture = TextureManager::Get()->GetMultiplayerMode();
-
-	m_singleplayerButton =  new Button(m_windowWidth / 2 - singleplayerTexture.GetWidth() / 2, m_windowHeight / 4 - singleplayerTexture.GetHeight() / 2, singleplayerTexture);
-	m_multiplayerButton = new Button(m_windowWidth / 2 - singleplayerTexture.GetWidth() / 2, m_windowHeight / 4 - singleplayerTexture.GetHeight() / 2 + 100, multiplayerTexture);
-
+	m_isGameRunning = true;
 	bool arrowCursor = false;
-	while (!quit)
+	while (m_isGameRunning)
 	{
-		//Input events
-		//Handle events on queue
-		while (SDL_PollEvent(&e) != 0)
-		{
-			//User requests quit
-			if (e.type == SDL_QUIT)
-			{
-				quit = true;
-			}
-
-			if (e.type == SDL_WINDOWEVENT)
-			{
-				int windowWidth;
-				int windowHeight;
-				SDL_GetWindowSize(m_window, &windowWidth, &windowHeight);
-
-				m_player->UpdateToWindow(m_windowWidth - windowWidth, m_windowHeight - windowHeight);
-
-				m_windowWidth = windowWidth;
-				m_windowHeight = windowHeight;
-			}
-
-			if (e.type == SDL_MOUSEMOTION)
-			{
-				int x = 0;
-				int y = 0;
-				SDL_GetMouseState(&x, &y);
-
-				if (m_singleplayerButton->IsInside(x, y))
-				{
-					m_singleplayerButton->OnHover();
-				}
-				else if (m_multiplayerButton->IsInside(x, y))
-				{
-					m_multiplayerButton->OnHover();
-				}
-				else
-				{
-					SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW));
-				}
-			}
-
-			if (e.type == SDL_KEYDOWN && e.key.repeat == 0)
-			{
-				switch (e.key.keysym.sym)
-				{
-				case SDLK_UP: m_player->UpdateVelocity(Direction::up); break;
-				case SDLK_DOWN: m_player->UpdateVelocity(Direction::down); break;
-
-					if (m_gameMode == GameMode::Multiplayer)
-					{
-				case SDLK_w: m_computer->UpdateVelocity(Direction::up); break;
-				case SDLK_s: m_computer->UpdateVelocity(Direction::down); break;
-					}
-				}
-			}
-			else if (e.type == SDL_KEYUP && e.key.repeat == 0)
-			{
-				switch (e.key.keysym.sym)
-				{
-				case SDLK_UP: m_player->UpdateVelocity(Direction::down); break;
-				case SDLK_DOWN: m_player->UpdateVelocity(Direction::up); break;
-
-					if (m_gameMode == GameMode::Multiplayer)
-					{
-				case SDLK_w: m_computer->UpdateVelocity(Direction::down); break;
-				case SDLK_s: m_computer->UpdateVelocity(Direction::up); break;
-					}
-				}
-			}
-		}
+		HandleEvents();
 
 		//Game Logic
-
 		m_ball->Update();
 		m_player->Update();
 		m_computer->Update();
@@ -248,29 +156,151 @@ void GameManager::PlayGame()
 		CheckCollisions();
 
 		//Rendering
+		Render();
+	}
+}
 
-		SDL_SetRenderDrawColor(m_renderer, 160, 160, 160, 255);
-		SDL_RenderClear(m_renderer);
+void GameManager::Render()
+{
+	SDL_SetRenderDrawColor(m_renderer, 160, 160, 160, 255);
+	SDL_RenderClear(m_renderer);
 
-		if (m_isHomeScreen)
+	if (m_isHomeScreen)
+	{
+		m_singleplayerButton->Render();
+		m_multiplayerButton->Render();
+	}
+	else
+	{
+		SDL_SetRenderDrawColor(m_renderer, 70, 70, 70, 255);
+		SDL_RenderDrawLine(m_renderer, m_windowWidth / 2, 0, m_windowWidth / 2, m_windowHeight);
+
+		m_ball->Render();
+		m_player->Render();
+		m_computer->Render();
+
+		TextureManager::Get()->GetComputerScore().Render(m_windowWidth / 4, 10);
+		TextureManager::Get()->GetPlayerScore().Render(m_windowWidth - m_windowWidth / 4, 10);
+	}
+
+	SDL_RenderPresent(m_renderer);
+}
+
+void GameManager::InitializeGameData()
+{
+	m_ball = new Ball(
+		Position{ GameManager::Get()->GetWindowWidth() / 2.0f, GameManager::Get()->GetWindowHeight() / 2.0f },
+		TextureManager::Get()->GetBall());
+
+	m_player =  new Paddle(
+		Position{ GameManager::Get()->GetWindowWidth() - 30.0f,GameManager::Get()->GetWindowHeight() / 2.0f - TextureManager::Get()->GetPlayerPaddle().GetHeight() / 2 },
+		TextureManager::Get()->GetPlayerPaddle());
+
+	m_computer = new Paddle(
+		Position{ GameManager::Get()->GetWindowWidth() / 100.0f, GameManager::Get()->GetWindowHeight() / 2.0f - TextureManager::Get()->GetComputerPaddle().GetHeight() / 2 },
+		TextureManager::Get()->GetComputerPaddle());
+
+	m_wallUp = new Collider(ColliderBox{ 0, 0, (float)GameManager::Get()->GetWindowWidth(), 5 }, Type::staticCollider);
+	m_wallDown = new Collider(ColliderBox{ 0, (float)GameManager::Get()->GetWindowHeight() - 10, (float)GameManager::Get()->GetWindowWidth(), 5 }, Type::staticCollider);
+
+	Texture& singleplayerTexture = TextureManager::Get()->GetSingleplayerMode();
+	Texture& multiplayerTexture = TextureManager::Get()->GetMultiplayerMode();
+
+	m_singleplayerButton = new Button(m_windowWidth / 2 - singleplayerTexture.GetWidth() / 2, m_windowHeight / 4 - singleplayerTexture.GetHeight() / 2, singleplayerTexture);
+	m_multiplayerButton = new Button(m_windowWidth / 2 - singleplayerTexture.GetWidth() / 2, m_windowHeight / 4 - singleplayerTexture.GetHeight() / 2 + 100, multiplayerTexture);
+}
+
+void GameManager::HandleEvents()
+{
+	SDL_Event e;
+	while (SDL_PollEvent(&e) != 0)
+	{
+		//User requests quit
+		if (e.type == SDL_QUIT)
 		{
-			m_singleplayerButton->Render();
-			m_multiplayerButton->Render();
+			m_isGameRunning = false;
 		}
-		else
+
+		if (e.type == SDL_WINDOWEVENT)
 		{
-			SDL_SetRenderDrawColor(m_renderer, 70, 70, 70, 255);
-			SDL_RenderDrawLine(m_renderer, m_windowWidth / 2, 0, m_windowWidth / 2, m_windowHeight);
+			int windowWidth;
+			int windowHeight;
+			SDL_GetWindowSize(m_window, &windowWidth, &windowHeight);
 
-			m_ball->Render();
-			m_player->Render();
-			m_computer->Render();
+			m_player->UpdateToWindow(m_windowWidth - windowWidth, m_windowHeight - windowHeight);
 
-			TextureManager::Get()->GetComputerScore().Render(m_windowWidth / 4, 10);
-			TextureManager::Get()->GetPlayerScore().Render(m_windowWidth - m_windowWidth / 4, 10);
+			m_windowWidth = windowWidth;
+			m_windowHeight = windowHeight;
 		}
 
-		SDL_RenderPresent(m_renderer);
+		if (e.type == SDL_MOUSEMOTION)
+		{
+			int x = 0;
+			int y = 0;
+			SDL_GetMouseState(&x, &y);
+
+			if (m_singleplayerButton->IsInside(x, y))
+			{
+				m_singleplayerButton->OnHover();
+			}
+			else if (m_multiplayerButton->IsInside(x, y))
+			{
+				m_multiplayerButton->OnHover();
+			}
+			else
+			{
+				SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW));
+			}
+		}
+
+		if (e.type == SDL_MOUSEBUTTONDOWN)
+		{
+			if (e.button.button == SDL_BUTTON_LEFT)
+			{
+				int x = 0;
+				int y = 0;
+				SDL_GetMouseState(&x, &y);
+
+				if (m_singleplayerButton->IsInside(x, y))
+				{
+					m_singleplayerButton->OnClick();
+					m_isHomeScreen = false;
+				}
+				else if (m_multiplayerButton->IsInside(x, y))
+				{
+					m_multiplayerButton->OnClick();
+				}
+			}
+		}
+
+		if (e.type == SDL_KEYDOWN && e.key.repeat == 0)
+		{
+			switch (e.key.keysym.sym)
+			{
+			case SDLK_UP: m_player->UpdateVelocity(Direction::up); break;
+			case SDLK_DOWN: m_player->UpdateVelocity(Direction::down); break;
+
+				if (m_gameMode == GameMode::Multiplayer)
+				{
+			case SDLK_w: m_computer->UpdateVelocity(Direction::up); break;
+			case SDLK_s: m_computer->UpdateVelocity(Direction::down); break;
+				}
+			}
+		}
+		else if (e.type == SDL_KEYUP && e.key.repeat == 0)
+		{
+			switch (e.key.keysym.sym)
+			{
+			case SDLK_UP: m_player->UpdateVelocity(Direction::down); break;
+			case SDLK_DOWN: m_player->UpdateVelocity(Direction::up); break;
+
+				if (m_gameMode == GameMode::Multiplayer)
+				{
+			case SDLK_w: m_computer->UpdateVelocity(Direction::down); break;
+			case SDLK_s: m_computer->UpdateVelocity(Direction::up); break;
+				}
+			}
+		}
 	}
 }
 

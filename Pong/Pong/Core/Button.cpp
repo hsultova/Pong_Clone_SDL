@@ -20,6 +20,10 @@ void Button::OnHover()
 	SDL_SetCursor(m_cursor);
 }
 
+void Button::OnClick()
+{
+}
+
 bool Button::IsInside(int _xMouse, int _yMouse)
 {
 	return CheckBounds(_xMouse, _yMouse, m_x, m_y, m_x + m_texture.GetWidth(), m_y + m_texture.GetHeight());

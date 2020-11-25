@@ -56,6 +56,9 @@ public:
 private:
 	void CheckCollisions();
 	bool CheckEndGame();
+	void HandleEvents();
+	void Render();
+	void InitializeGameData();
 
 private:
 	static GameManager* s_instance;
@@ -65,6 +68,8 @@ private:
 
 	SDL_Window* m_window = nullptr;
 	SDL_Renderer* m_renderer = nullptr;
+
+	bool m_isGameRunning = false;
 
 	Ball* m_ball = nullptr;
 	Paddle* m_player = nullptr;
