@@ -8,15 +8,15 @@ int main(int argc, char* args[])
 	GameManager* gameManager = &GameManager();
 	GameManager::RegisterInstance(gameManager);
 
-	TextureManager* textureManager = &TextureManager();
-	TextureManager::RegisterInstance(textureManager);
-	textureManager->Initialize();
-
 	if (!GameManager::Get()->Initialize())
 	{
 		printf("Failed to initialize!\n");
 		return -1;
 	}
+
+	TextureManager* textureManager = &TextureManager();
+	TextureManager::RegisterInstance(textureManager);
+	textureManager->Initialize(gameManager->GetRenderer());
 
 	textureManager->LoadTextures();
 	gameManager->PlayGame();

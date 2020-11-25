@@ -2,9 +2,7 @@
 
 #include <SDL_image.h>
 
-#include "..\GameManager.h"
-
-Texture::Texture()
+Texture::Texture(SDL_Renderer* _renderer) : m_renderer(_renderer)
 {
 	m_texture = nullptr;
 	m_font = nullptr;
@@ -12,8 +10,8 @@ Texture::Texture()
 	m_height = 0;
 }
 
-Texture::Texture(SDL_Texture* _texture, int _width, int _height)
-	: m_texture(_texture), m_width(_width), m_height(_height)
+Texture::Texture(SDL_Renderer* _renderer, SDL_Texture* _texture, int _width, int _height)
+	: m_renderer(_renderer), m_texture(_texture), m_width(_width), m_height(_height)
 {
 }
 
@@ -49,9 +47,7 @@ bool Texture::LoadFromFile(std::string _path)
 	}
 	SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 0, 255, 255));
 
-	assert(GameManager::Get()->GetRenderer() != nullptr);
-
-	newTexture = SDL_CreateTextureFromSurface(GameManager::Get()->GetRenderer(), loadedSurface);
+	newTexture = SDL_CreateTextureFromSurface(m_renderer, loadedSurface);
 	if (newTexture == nullptr)
 	{
 		printf("Unable to create texture from %s! SDL Error: %s\n", _path.c_str(), SDL_GetError());
@@ -75,8 +71,7 @@ bool Texture::LoadFromRenderedText(std::string _text, SDL_Color _color)
 		return false;
 	}
 
-	assert(GameManager::Get()->GetRenderer() != nullptr);
-	m_texture = SDL_CreateTextureFromSurface(GameManager::Get()->GetRenderer(), textSurface);
+	m_texture = SDL_CreateTextureFromSurface(m_renderer, textSurface);
 	if (m_texture == nullptr)
 	{
 		printf("Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError());
@@ -127,8 +122,7 @@ void Texture::Render(int x, int y, SDL_Rect* clip)
 		renderRect.h = clip->h;
 	}
 
-	assert(GameManager::Get()->GetRenderer() != nullptr);
-	SDL_RenderCopy(GameManager::Get()->GetRenderer(), m_texture, clip, &renderRect);
+	SDL_RenderCopy(m_renderer, m_texture, clip, &renderRect);
 }
 
 int Texture::GetWidth() const

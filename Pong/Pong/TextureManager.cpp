@@ -22,14 +22,15 @@ void TextureManager::UnregisterInstance(TextureManager* _instance)
 	s_instance = nullptr;
 }
 
-void TextureManager::Initialize()
+void TextureManager::Initialize(SDL_Renderer* _renderer)
 {
-	m_ball = new Texture();
-	m_computerPaddle = new Texture();
-	m_playerPaddle = new Texture();
-	m_computerScore = new Texture();
-	m_playerScore = new Texture();
-
+	m_ball = new Texture(_renderer);
+	m_computerPaddle = new Texture(_renderer);
+	m_playerPaddle = new Texture(_renderer);
+	m_computerScore = new Texture(_renderer);
+	m_playerScore = new Texture(_renderer);
+	m_singleplayerMode = new Texture(_renderer);
+	m_multiplayerMode = new Texture(_renderer);
 }
 
 void TextureManager::Destroy()
@@ -39,6 +40,8 @@ void TextureManager::Destroy()
 	delete m_playerPaddle;
 	delete m_computerScore;
 	delete m_playerScore;
+	delete m_singleplayerMode;
+	delete m_multiplayerMode;
 }
 
 void TextureManager::LoadTextures()
@@ -51,6 +54,9 @@ void TextureManager::LoadTextures()
 	m_computerScore->LoadFromRenderedText("0");
 	m_playerScore->SetFont(TTF_OpenFont("Textures/lovtony.ttf", 64));
 	m_playerScore->LoadFromRenderedText("0");
+
+	m_singleplayerMode->LoadFromFile("Textures/singleplayer.png");
+	m_multiplayerMode->LoadFromFile("Textures/multiplayer.png");
 }
 
 Texture& TextureManager::GetBall() const
@@ -76,4 +82,14 @@ Texture& TextureManager::GetComputerScore() const
 Texture& TextureManager::GetPlayerScore() const
 {
 	return *m_playerScore;
+}
+
+Texture& TextureManager::GetSingleplayerMode() const
+{
+	return *m_singleplayerMode;
+}
+
+Texture& TextureManager::GetMultiplayerMode() const
+{
+	return *m_multiplayerMode;
 }

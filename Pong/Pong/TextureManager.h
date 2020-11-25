@@ -9,17 +9,18 @@ public:
 	static void RegisterInstance(TextureManager* _instance);
 	static void UnregisterInstance(TextureManager* _instance);
 
-	void Initialize();
+	void Initialize(SDL_Renderer* _renderer);
 	void Destroy();
 
 	void LoadTextures();
-	void RenderTextures(int _windowWidth, int _windowHeight);
 
 	Texture& GetBall() const;
 	Texture& GetPlayerPaddle() const;
 	Texture& GetComputerPaddle() const;
 	Texture& GetComputerScore() const;
 	Texture& GetPlayerScore() const;
+	Texture& GetSingleplayerMode() const;
+	Texture& GetMultiplayerMode() const;
 
 private:
 	static TextureManager* s_instance;
@@ -29,5 +30,8 @@ private:
 	Texture* m_playerPaddle;
 	Texture* m_computerScore;
 	Texture* m_playerScore;
+	Texture* m_singleplayerMode;
+	Texture* m_multiplayerMode;
+	//Texture* m_onlinemultiplayerMode;
 };
 

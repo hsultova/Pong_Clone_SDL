@@ -142,6 +142,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Ball.cpp" />
+    <ClCompile Include="Core\Button.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Core\Texture.cpp" />
     <ClCompile Include="GameManager.cpp" />
@@ -151,6 +152,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ball.h" />
+    <ClInclude Include="Core\Button.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Core\Texture.h" />
     <ClInclude Include="GameManager.h" />

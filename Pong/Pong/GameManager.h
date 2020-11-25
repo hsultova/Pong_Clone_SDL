@@ -5,6 +5,7 @@
 #include <assert.h> 
 
 #include "Texture.h"
+#include "Button.h"
 
 class Ball;
 class Paddle;
@@ -22,6 +23,13 @@ enum class Direction
 	down,
 	left,
 	right
+};
+
+enum class GameMode
+{
+	Singleplayer,
+	Multiplayer,
+	OnlineMultiplayer
 };
 
 class GameManager
@@ -65,7 +73,13 @@ private:
 	Collider* m_wallUp = nullptr;
 	Collider* m_wallDown = nullptr;
 
+	GameMode m_gameMode = GameMode::Multiplayer;
+	bool m_isHomeScreen = true;
+
 	int m_playerScore = 0;
 	int m_computerScore = 0;
+
+	Button* m_singleplayerButton;
+	Button* m_multiplayerButton;
 };
 

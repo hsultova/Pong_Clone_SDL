@@ -8,8 +8,8 @@
 class Texture
 {
 public:
-	Texture();
-	Texture(SDL_Texture* _texture, int _width, int _height);
+	Texture(SDL_Renderer* _renderer);
+	Texture(SDL_Renderer* _renderer, SDL_Texture* _texture, int _width, int _height);
 	~Texture();
 
 	void Free();
@@ -25,6 +25,7 @@ public:
 	int GetHeight() const;
 
 private:
+	SDL_Renderer* m_renderer;
 	SDL_Texture* m_texture;
 	TTF_Font* m_font = nullptr;
 
