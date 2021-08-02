@@ -1,5 +1,5 @@
 # Pong_Clone_SDL
-Clone of the pong game.
+Clone of the [pong](https://en.wikipedia.org/wiki/Pong) game.
 
 **Technologies:**
 C++, SDL
